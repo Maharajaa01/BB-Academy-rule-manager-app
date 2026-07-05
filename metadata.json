@@ -1,0 +1,6 @@
+{
+  "name": "BB Rule Manager",
+  "description": "Progressive Web Application (PWA) for managing BB rules, books, categories, and staff.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

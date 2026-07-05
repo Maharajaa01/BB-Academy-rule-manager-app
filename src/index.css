@@ -1,0 +1,108 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;600;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-gold: #FFD700;
+  --color-gold-dark: #ccab00;
+  --color-gold-light: #FFE44D;
+  --color-premium-black: #0f0f0f;
+  --color-premium-gray: #1a1a1a;
+  --color-premium-light: #262626;
+}
+
+/* Geometric Balance Custom Variables */
+:root {
+  --gold: #FFD700;
+  --dark-bg: #0f0f0f;
+  --card-bg: rgba(26, 26, 26, 0.85);
+  --border: rgba(255, 215, 0, 0.25);
+  --glow: rgba(255, 215, 0, 0.15);
+}
+
+/* Custom classes for Geometric Balance */
+@layer utilities {
+  .glass {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+  }
+
+  .glass-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 215, 0, 0.15);
+  }
+  
+  .glass-card-hover:hover {
+    border-color: rgba(255, 215, 0, 0.4);
+    box-shadow: 0 8px 32px 0 rgba(255, 215, 0, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .gold-text {
+    color: var(--gold);
+  }
+
+  .gold-glow {
+    box-shadow: 0 0 15px var(--glow);
+  }
+
+  .gold-glow-focus:focus {
+    outline: none;
+    border-color: #FFD700;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+  }
+
+  .sidebar-item:hover {
+    background: rgba(255, 215, 0, 0.1);
+    color: var(--gold);
+    border-right: 3px solid var(--gold);
+  }
+
+  .stat-card {
+    transition: all 0.3s ease;
+  }
+
+  .stat-card:hover {
+    border-color: var(--gold);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px 0 rgba(255, 215, 0, 0.08);
+  }
+
+  .crown-logo {
+    filter: drop-shadow(0 0 8px var(--glow));
+  }
+}
+
+/* Hide scrollbar for clean app experience */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0f0f0f;
+}
+::-webkit-scrollbar-thumb {
+  background: #262626;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #FFD700;
+}
+
+/* Smooth active route transitions */
+.page-fade-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.page-fade-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
