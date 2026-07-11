@@ -117,6 +117,8 @@ export default function App() {
   }
 
   const isAdmin = user.role === "Administrator";
+  const hasAdminPanelAccess = isAdmin || user.access === "Can Edit" || user.access === "Can Edit and Delete";
+  const canDelete = isAdmin || user.access === "Can Edit and Delete";
 
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white flex flex-col md:flex-row font-sans overflow-x-hidden select-none">
@@ -160,7 +162,7 @@ export default function App() {
           </button>
 
           {/* Administrator Panel Tabs */}
-          {isAdmin && (
+          {hasAdminPanelAccess && (
             <div className="space-y-1 pt-4">
               <span className="text-[9px] uppercase font-mono tracking-widest text-zinc-500 font-bold block px-4 mb-2">
                 System Admin
@@ -306,15 +308,15 @@ export default function App() {
             )}
 
             {view === "admin-staff" && (
-              <AdminStaffView showToast={showToast} />
+              <AdminStaffView showToast={showToast} canDelete={canDelete} />
             )}
 
             {view === "admin-categories" && (
-              <AdminCategoriesView showToast={showToast} />
+              <AdminCategoriesView showToast={showToast} canDelete={canDelete} />
             )}
 
             {view === "admin-books" && (
-              <AdminBooksView showToast={showToast} />
+              <AdminBooksView showToast={showToast} canDelete={canDelete} />
             )}
           </motion.div>
         </AnimatePresence>
@@ -345,7 +347,7 @@ export default function App() {
         </button>
 
         {/* Nav Admin Portal (Only shown for administrators) */}
-        {isAdmin && (
+        {hasAdminPanelAccess && (
           <button
             onClick={() => {
               // Directs to admin staff by default, easily togglable
@@ -375,7 +377,7 @@ export default function App() {
       </nav>
 
       {/* --- NESTED SUB-TAB SELECTION FOR ADMINISTRATORS ON MOBILE --- */}
-      {isAdmin && (view === "admin-staff" || view === "admin-categories" || view === "admin-books") && (
+      {hasAdminPanelAccess && (view === "admin-staff" || view === "admin-categories" || view === "admin-books") && (
         <div className="md:hidden fixed bottom-16 left-0 right-0 h-10 bg-[#0f0f0f] border-t border-gold/10 z-20 flex items-center justify-center gap-2 p-1 bg-opacity-95">
           <button
             onClick={() => setView("admin-staff")}

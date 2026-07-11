@@ -1,3 +1,4 @@
+import { apiFetch } from "../api";
 import React, { useEffect, useState, useRef } from "react";
 import { X, Play, Pause, Volume2, RotateCcw, AlertTriangle, Video, Music, BookOpen, Clock } from "lucide-react";
 import { RuleBook } from "../types";
@@ -22,7 +23,7 @@ export default function RuleBookDetailModal({ bookId, onClose, showToast }: Rule
   useEffect(() => {
     // Fetch details
     setLoading(true);
-    fetch(`/api/method/rule_management.rule_management.api.get_rule_book_detail?rule_book=${encodeURIComponent(bookId)}`)
+    apiFetch(`/api/method/rule_management.rule_management.api.get_rule_book_detail?rule_book=${encodeURIComponent(bookId)}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.status === "success" && data.data) {

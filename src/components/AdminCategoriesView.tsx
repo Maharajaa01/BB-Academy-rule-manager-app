@@ -1,3 +1,4 @@
+import { apiFetch } from "../api";
 import React, { useEffect, useState } from "react";
 import { FolderLock, FolderPlus, Trash2, Edit2, ShieldAlert, X, Save, Search } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
@@ -5,9 +6,10 @@ import { RuleCategory } from "../types";
 
 interface AdminCategoriesViewProps {
   showToast: (msg: string, type?: "success" | "error") => void;
+  canDelete?: boolean;
 }
 
-export default function AdminCategoriesView({ showToast }: AdminCategoriesViewProps) {
+export default function AdminCategoriesView({ showToast, canDelete = true }: AdminCategoriesViewProps) {
   const [categories, setCategories] = useState<RuleCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -24,7 +26,7 @@ export default function AdminCategoriesView({ showToast }: AdminCategoriesViewPr
   const fetchCategories = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/method/rule_management.rule_management.api.get_assigned_rule_categories");
+      const res = await apiFetch("/api/method/rule_management.rule_management.api.get_assigned_rule_categories");
       const data = await res.json();
       if (data.status === "success") {
         setCategories(data.data);
@@ -63,7 +65,7 @@ export default function AdminCategoriesView({ showToast }: AdminCategoriesViewPr
     }
 
     try {
-      const res = await fetch("/api/method/rule_management.rule_management.api.delete_rule_category", {
+      const res = await apiFetch("/api/method/rule_management.rule_management.api.delete_rule_category", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ category_id: catId }),
@@ -106,7 +108,7 @@ export default function AdminCategoriesView({ showToast }: AdminCategoriesViewPr
             description: description,
           };
 
-      const res = await fetch(endpoint, {
+      const res = await apiFetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -146,13 +148,15 @@ export default function AdminCategoriesView({ showToast }: AdminCategoriesViewPr
           <h2 className="text-xl font-black text-white tracking-tight">Category Organization Registry</h2>
         </div>
 
-        <button
-          onClick={openCreateForm}
-          className="flex items-center justify-center gap-2 bg-gold hover:bg-gold-light text-black font-bold text-xs uppercase tracking-wider py-2.5 px-4 rounded-xl shadow-lg shadow-gold/10 transition-all duration-300 active:scale-95 cursor-pointer font-sans self-start sm:self-auto"
-        >
-          <FolderPlus className="w-4 h-4 text-black" />
-          <span>Add Category</span>
-        </button>
+        {canDelete && (
+          <button
+            onClick={openCreateForm}
+            className="flex items-center justify-center gap-2 bg-gold hover:bg-gold-light text-black font-bold text-xs uppercase tracking-wider py-2.5 px-4 rounded-xl shadow-lg shadow-gold/10 transition-all duration-300 active:scale-95 cursor-pointer font-sans self-start sm:self-auto"
+          >
+            <FolderPlus className="w-4 h-4 text-black" />
+            <span>Add Category</span>
+          </button>
+        )}
       </div>
 
       {/* Search and stats bar */}
@@ -216,13 +220,15 @@ export default function AdminCategoriesView({ showToast }: AdminCategoriesViewPr
                   <Edit2 className="w-3.5 h-3.5" />
                   <span>Modify</span>
                 </button>
-                <button
-                  onClick={() => handleDelete(cat.id)}
-                  className="p-2 rounded-lg bg-red-500/5 hover:bg-red-500/10 border border-red-500/20 text-red-400 hover:text-red-350 transition-all duration-200 flex items-center gap-1 text-[11px] font-mono cursor-pointer"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  <span>Delete</span>
-                </button>
+                {canDelete && (
+                  <button
+                    onClick={() => handleDelete(cat.id)}
+                    className="p-2 rounded-lg bg-red-500/5 hover:bg-red-500/10 border border-red-500/20 text-red-400 hover:text-red-350 transition-all duration-200 flex items-center gap-1 text-[11px] font-mono cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete</span>
+                  </button>
+                )}
               </div>
             </motion.div>
           ))}

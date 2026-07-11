@@ -1,3 +1,4 @@
+import { apiFetch } from "../api";
 import React, { useState } from "react";
 import Logo from "./Logo";
 import { LogIn, KeyRound, User, Eye, EyeOff } from "lucide-react";
@@ -23,7 +24,7 @@ export default function LoginView({ onLoginSuccess, showToast }: LoginViewProps)
 
     setLoading(true);
     try {
-      const response = await fetch("/api/method/rule_management.rule_management.api.login", {
+      const response = await apiFetch("/api/method/rule_management.rule_management.api.login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -84,9 +85,6 @@ export default function LoginView({ onLoginSuccess, showToast }: LoginViewProps)
                 required
               />
             </div>
-            <p className="text-[10px] text-gray-400 font-mono italic">
-              Try <strong className="text-gold">staff</strong> (Staff) or <strong className="text-gold">admin</strong> (Admin)
-            </p>
           </div>
 
           {/* Input Password */}
@@ -116,9 +114,6 @@ export default function LoginView({ onLoginSuccess, showToast }: LoginViewProps)
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
-            <p className="text-[10px] text-gray-400 font-mono italic">
-              Passcodes: <strong className="text-gold">staff123</strong> / <strong className="text-gold">admin123</strong>
-            </p>
           </div>
 
           {/* Sign In Button */}

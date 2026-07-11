@@ -63,7 +63,7 @@ export default function Logo({ className = "", size = "md" }: LogoProps) {
             BB RULE MANAGER
           </h1>
           <p className="text-[10px] uppercase tracking-[0.25em] text-gray-400 font-semibold font-sans">
-            Exclusive Administrative Suite
+            System Designed By Dream Tech Solution
           </p>
         </div>
       )}

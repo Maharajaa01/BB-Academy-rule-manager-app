@@ -1,3 +1,4 @@
+import { apiFetch } from "../api";
 import React, { useEffect, useState } from "react";
 import { 
   Users, 
@@ -44,7 +45,7 @@ export default function DashboardView({ user, setView, showToast, onSelectBook }
           ? "/api/method/rule_management.rule_management.api.admin_dashboard"
           : "/api/method/rule_management.rule_management.api.get_staff_dashboard";
 
-        const statsRes = await fetch(statsUrl);
+        const statsRes = await apiFetch(statsUrl);
         const statsData = await statsRes.json();
 
         if (statsData.status === "success") {
@@ -58,7 +59,7 @@ export default function DashboardView({ user, setView, showToast, onSelectBook }
         }
 
         // Fetch rule books to display "Featured Rule Books"
-        const booksRes = await fetch("/api/method/rule_management.rule_management.api.get_rule_books");
+        const booksRes = await apiFetch("/api/method/rule_management.rule_management.api.get_rule_books");
         const booksData = await booksRes.json();
         if (booksData.status === "success") {
           setRecentBooks(booksData.data.slice(0, 3)); // show first 3

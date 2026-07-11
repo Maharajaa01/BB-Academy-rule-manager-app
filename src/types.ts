@@ -7,12 +7,16 @@ export interface Staff {
   password?: string;
   status: string;
   role: string;
+  access: string;
+  assigned_categories?: string[];
 }
 
 export interface RuleCategory {
   id: string;
   category_name: string;
   description: string;
+  is_parent?: number;
+  parent_category?: string;
 }
 
 export interface RuleBook {

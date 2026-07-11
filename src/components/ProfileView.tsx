@@ -1,3 +1,4 @@
+import { apiFetch } from "../api";
 import React, { useEffect, useState } from "react";
 import { User, Phone, Mail, ShieldAlert, LogOut, CheckCircle, ShieldCheck } from "lucide-react";
 import { motion } from "motion/react";
@@ -12,8 +13,14 @@ export default function ProfileView({ user, onLogout, showToast }: ProfileViewPr
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  // Reset Password State
+  const [isResetting, setIsResetting] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
+
   useEffect(() => {
-    fetch("/api/method/rule_management.rule_management.api.get_logged_in_staff_profile")
+    apiFetch("/api/method/rule_management.rule_management.api.get_logged_in_staff_profile")
       .then((res) => res.json())
       .then((data) => {
         if (data.status === "success" && data.data) {
@@ -36,6 +43,41 @@ export default function ProfileView({ user, onLogout, showToast }: ProfileViewPr
   const handleLogoutAction = () => {
     onLogout();
     showToast("Successfully deauthorized and logged out.", "success");
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword.length < 6) {
+      showToast("Password must be at least 6 characters.", "error");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      showToast("Passwords do not match.", "error");
+      return;
+    }
+
+    setResetLoading(true);
+    try {
+      const res = await apiFetch("/api/method/rule_management.rule_management.api.reset_password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ new_password: newPassword }),
+      });
+      const data = await res.json();
+      if (data.status === "success") {
+        showToast("Password reset successfully.", "success");
+        setIsResetting(false);
+        setNewPassword("");
+        setConfirmPassword("");
+      } else {
+        showToast(data.message || "Failed to reset password.", "error");
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("Network error.", "error");
+    } finally {
+      setResetLoading(false);
+    }
   };
 
   return (
@@ -131,6 +173,58 @@ export default function ProfileView({ user, onLogout, showToast }: ProfileViewPr
               </div>
             </div>
 
+            {/* Reset Password Form */}
+            <div className="pt-6 border-t border-gray-900">
+              {!isResetting ? (
+                <button
+                  onClick={() => setIsResetting(true)}
+                  className="text-gold text-xs font-bold uppercase tracking-wider hover:text-gold-light transition-colors duration-200"
+                >
+                  Change Password
+                </button>
+              ) : (
+                <form onSubmit={handleResetPassword} className="space-y-4 max-w-sm">
+                  <h4 className="text-sm font-bold text-white mb-2">Change Password</h4>
+                  <div>
+                    <input
+                      type="password"
+                      placeholder="New Password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="w-full bg-[#1b1b1b] border border-gray-800 rounded-xl p-3 text-xs text-white placeholder-gray-500 focus:border-gold outline-none transition-all duration-300"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="password"
+                      placeholder="Confirm New Password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full bg-[#1b1b1b] border border-gray-800 rounded-xl p-3 text-xs text-white placeholder-gray-500 focus:border-gold outline-none transition-all duration-300"
+                      required
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="submit"
+                      disabled={resetLoading}
+                      className="bg-gold hover:bg-gold-light text-black font-bold text-xs uppercase tracking-wider py-2 px-4 rounded-lg shadow-lg shadow-gold/10 transition-all duration-300 disabled:opacity-50"
+                    >
+                      {resetLoading ? "Updating..." : "Update"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsResetting(false)}
+                      className="border border-gray-800 text-gray-400 hover:text-white font-bold text-xs uppercase tracking-wider py-2 px-4 rounded-lg transition-all duration-300"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+
             {/* Logout actions */}
             <div className="pt-6 border-t border-gray-900 flex justify-end">
               <button
@@ -138,7 +232,7 @@ export default function ProfileView({ user, onLogout, showToast }: ProfileViewPr
                 className="flex items-center justify-center gap-2 border border-red-500/30 hover:border-red-500 bg-red-500/5 hover:bg-red-500/10 text-red-400 font-bold font-sans py-3 px-6 rounded-xl transition-all duration-300 cursor-pointer active:scale-95 text-xs uppercase tracking-widest"
               >
                 <LogOut className="w-4 h-4" />
-                <span>Revoke Session Authorization</span>
+                <span>Log Out</span>
               </button>
             </div>
           </div>

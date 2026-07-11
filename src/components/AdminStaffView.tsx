@@ -1,3 +1,4 @@
+import { apiFetch } from "../api";
 import React, { useEffect, useState } from "react";
 import { Users, UserPlus, Trash2, Edit2, ShieldAlert, X, Check, Search, Save } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
@@ -5,9 +6,10 @@ import { Staff } from "../types";
 
 interface AdminStaffViewProps {
   showToast: (msg: string, type?: "success" | "error") => void;
+  canDelete?: boolean;
 }
 
-export default function AdminStaffView({ showToast }: AdminStaffViewProps) {
+export default function AdminStaffView({ showToast, canDelete = true }: AdminStaffViewProps) {
   const [staffList, setStaffList] = useState<Staff[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -24,13 +26,26 @@ export default function AdminStaffView({ showToast }: AdminStaffViewProps) {
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState("Active");
   const [role, setRole] = useState("Staff");
+  const [access, setAccess] = useState("View Only");
+  const [assignedCategories, setAssignedCategories] = useState<string[]>([]);
+  const [availableCategories, setAvailableCategories] = useState<any[]>([]);
 
   const [submitting, setSubmitting] = useState(false);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await apiFetch("/api/method/rule_management.rule_management.api.get_assigned_rule_categories");
+      const data = await res.json();
+      if (data.status === "success") {
+        setAvailableCategories(data.data);
+      }
+    } catch (err) {}
+  };
 
   const fetchStaff = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/method/rule_management.rule_management.api.get_staff_list");
+      const res = await apiFetch("/api/method/rule_management.rule_management.api.get_staff_list");
       const data = await res.json();
       if (data.status === "success") {
         setStaffList(data.data);
@@ -47,6 +62,7 @@ export default function AdminStaffView({ showToast }: AdminStaffViewProps) {
 
   useEffect(() => {
     fetchStaff();
+    fetchCategories();
   }, []);
 
   const openCreateForm = () => {
@@ -58,18 +74,22 @@ export default function AdminStaffView({ showToast }: AdminStaffViewProps) {
     setPassword("");
     setStatus("Active");
     setRole("Staff");
+    setAccess("View Only");
+    setAssignedCategories([]);
     setIsFormOpen(true);
   };
 
   const openEditForm = (staff: Staff) => {
     setEditingStaff(staff);
     setName(staff.employee_name);
-    setMobile(staff.mobile_no);
-    setEmail(staff.email);
+    setMobile(staff.mobile_no || "");
+    setEmail(staff.email || "");
     setLoginId(staff.login_id);
     setPassword(staff.password || "");
     setStatus(staff.status);
     setRole(staff.role);
+    setAccess(staff.access || "View Only");
+    setAssignedCategories(staff.assigned_categories || []);
     setIsFormOpen(true);
   };
 
@@ -79,7 +99,7 @@ export default function AdminStaffView({ showToast }: AdminStaffViewProps) {
     }
 
     try {
-      const res = await fetch("/api/method/rule_management.rule_management.api.delete_staff", {
+      const res = await apiFetch("/api/method/rule_management.rule_management.api.delete_staff", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ staff_id: staffId }),
@@ -116,27 +136,31 @@ export default function AdminStaffView({ showToast }: AdminStaffViewProps) {
             staff_id: editingStaff.id,
             data: {
               employee_name: name,
+              user: loginId,
+              password: password || undefined,
+              staff_category: role === "Administrator" ? "Admin" : "Staff",
+              status: status,
               mobile_no: mobile,
               email: email,
-              login_id: loginId,
-              password: password || undefined,
-              status: status,
-              role: role,
+              access: access,
+              assigned_categories: assignedCategories.map(c => ({ rule_category: c })),
             },
           }
         : {
             data: {
               employee_name: name,
+              user: loginId,
+              password: password,
+              staff_category: role === "Administrator" ? "Admin" : "Staff",
+              status: status,
               mobile_no: mobile,
               email: email,
-              login_id: loginId,
-              password: password,
-              status: status,
-              role: role,
+              access: access,
+              assigned_categories: assignedCategories.map(c => ({ rule_category: c })),
             },
           };
 
-      const res = await fetch(endpoint, {
+      const res = await apiFetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -177,13 +201,15 @@ export default function AdminStaffView({ showToast }: AdminStaffViewProps) {
           <h2 className="text-xl font-black text-white tracking-tight">Staff Management Registry</h2>
         </div>
 
-        <button
-          onClick={openCreateForm}
-          className="flex items-center justify-center gap-2 bg-gold hover:bg-gold-light text-black font-bold text-xs uppercase tracking-wider py-2.5 px-4 rounded-xl shadow-lg shadow-gold/10 transition-all duration-300 active:scale-95 cursor-pointer font-sans self-start sm:self-auto"
-        >
-          <UserPlus className="w-4 h-4 text-black" />
-          <span>Register Staff</span>
-        </button>
+        {canDelete && (
+          <button
+            onClick={openCreateForm}
+            className="flex items-center justify-center gap-2 bg-gold hover:bg-gold-light text-black font-bold text-xs uppercase tracking-wider py-2.5 px-4 rounded-xl shadow-lg shadow-gold/10 transition-all duration-300 active:scale-95 cursor-pointer font-sans self-start sm:self-auto"
+          >
+            <UserPlus className="w-4 h-4 text-black" />
+            <span>Register Staff</span>
+          </button>
+        )}
       </div>
 
       {/* Search and stats bar */}
@@ -254,9 +280,19 @@ export default function AdminStaffView({ showToast }: AdminStaffViewProps) {
                   <span>Role:</span>
                   <span className="text-gold font-bold">{staff.role}</span>
                 </div>
-                <div className="flex justify-between truncate">
-                  <span>Email:</span>
-                  <span className="text-gray-300 truncate max-w-[150px]">{staff.email || "—"}</span>
+                <div className="flex justify-between items-center">
+                  <span>Access:</span>
+                  <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase ${
+                    staff.access === 'Can Edit and Delete' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
+                    staff.access === 'Can Edit' ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' :
+                    'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
+                  }`}>
+                    {staff.access || "View Only"}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span>Categories:</span>
+                  <span className="text-gray-300 font-bold">{staff.assigned_categories?.length || 0} Assigned</span>
                 </div>
               </div>
 
@@ -269,13 +305,15 @@ export default function AdminStaffView({ showToast }: AdminStaffViewProps) {
                   <Edit2 className="w-3.5 h-3.5" />
                   <span>Edit</span>
                 </button>
-                <button
-                  onClick={() => handleDelete(staff.id)}
-                  className="p-2 rounded-lg bg-red-500/5 hover:bg-red-500/10 border border-red-500/20 text-red-400 hover:text-red-350 transition-all duration-200 flex items-center gap-1 text-[11px] font-mono cursor-pointer"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  <span>Delete</span>
-                </button>
+                {canDelete && (
+                  <button
+                    onClick={() => handleDelete(staff.id)}
+                    className="p-2 rounded-lg bg-red-500/5 hover:bg-red-500/10 border border-red-500/20 text-red-400 hover:text-red-350 transition-all duration-200 flex items-center gap-1 text-[11px] font-mono cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete</span>
+                  </button>
+                )}
               </div>
             </motion.div>
           ))}
@@ -405,7 +443,25 @@ export default function AdminStaffView({ showToast }: AdminStaffViewProps) {
                       <option value="Administrator">Administrator</option>
                     </select>
                   </div>
+                  
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-mono uppercase tracking-wider text-gold font-bold">
+                      System Access
+                    </label>
+                    <select
+                      value={access}
+                      onChange={(e) => setAccess(e.target.value)}
+                      disabled={role === "Administrator"}
+                      className="w-full bg-[#1b1b1b] border border-gray-800 rounded-xl p-3 text-xs text-white gold-glow-focus cursor-pointer transition-all duration-300 disabled:opacity-50"
+                    >
+                      <option value="View Only">View Only</option>
+                      <option value="Can Edit">Can Edit</option>
+                      <option value="Can Edit and Delete">Can Edit and Delete</option>
+                    </select>
+                  </div>
+                </div>
 
+                <div className="grid grid-cols-2 gap-4 pt-1">
                   <div className="space-y-1">
                     <label className="text-[10px] font-mono uppercase tracking-wider text-gold font-bold">
                       Account Status
@@ -420,6 +476,30 @@ export default function AdminStaffView({ showToast }: AdminStaffViewProps) {
                     </select>
                   </div>
                 </div>
+
+                <div className="space-y-2 col-span-2 pt-2">
+                  <label className="text-[10px] font-mono uppercase tracking-wider text-gold font-bold">
+                    Assigned Rule Categories
+                  </label>
+                  <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto pr-2 border border-gray-800 p-2 rounded-xl bg-[#1b1b1b]">
+                    {availableCategories.map((c) => (
+                      <label key={c.id} className="flex items-center gap-2 cursor-pointer p-1 hover:bg-white/5 rounded">
+                        <input
+                          type="checkbox"
+                          checked={assignedCategories.includes(c.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) setAssignedCategories([...assignedCategories, c.id]);
+                            else setAssignedCategories(assignedCategories.filter(id => id !== c.id));
+                          }}
+                          className="accent-gold w-3 h-3"
+                        />
+                        <span className="text-xs text-white line-clamp-1">{c.category_name}</span>
+                      </label>
+                    ))}
+                    {availableCategories.length === 0 && <span className="text-xs text-gray-500">No categories found.</span>}
+                  </div>
+                </div>
+
 
                 {/* Action CTA buttons */}
                 <div className="pt-6 border-t border-gray-900 flex justify-end gap-3 mt-2">

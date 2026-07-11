@@ -1,3 +1,4 @@
+import { apiFetch } from "../api";
 import React, { useEffect, useState } from "react";
 import { FolderLock, BookOpen, ChevronRight, Search, Play, HelpCircle, ArrowLeft } from "lucide-react";
 import { motion } from "motion/react";
@@ -15,13 +16,18 @@ export default function CategoriesView({ showToast, onSelectBook }: CategoriesVi
   const [searchQuery, setSearchQuery] = useState("");
   
   // Drill-down states
-  const [selectedCategory, setSelectedCategory] = useState<RuleCategory | null>(null);
+  const [path, setPath] = useState<RuleCategory[]>([]);
+  const currentCategory = path.length > 0 ? path[path.length - 1] : null;
+
+  const handleBack = () => {
+    setPath((prev) => prev.slice(0, -1));
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const catRes = await fetch("/api/method/rule_management.rule_management.api.get_assigned_rule_categories");
+        const catRes = await apiFetch("/api/method/rule_management.rule_management.api.get_assigned_rule_categories");
         const catData = await catRes.json();
         if (catData.status === "success") {
           setCategories(catData.data);
@@ -29,7 +35,7 @@ export default function CategoriesView({ showToast, onSelectBook }: CategoriesVi
           showToast(catData.message || "Failed to load categories.", "error");
         }
 
-        const booksRes = await fetch("/api/method/rule_management.rule_management.api.get_rule_books");
+        const booksRes = await apiFetch("/api/method/rule_management.rule_management.api.get_rule_books");
         const booksData = await booksRes.json();
         if (booksData.status === "success") {
           setBooks(booksData.data);
@@ -45,10 +51,16 @@ export default function CategoriesView({ showToast, onSelectBook }: CategoriesVi
     fetchData();
   }, []);
 
-  // Filter books inside selected category
-  const filteredBooks = selectedCategory
-    ? books.filter((b) => b.rule_category === selectedCategory.category_name)
+  // Filter books inside current category
+  const filteredBooks = currentCategory
+    ? books.filter((b) => b.rule_category === currentCategory.category_name)
     : [];
+
+  const subCategories = currentCategory
+    ? categories.filter((c) => c.parent_category === currentCategory.category_name)
+    : [];
+    
+  const topCategories = categories.filter((c) => c.is_parent === 1);
 
   // Global search through all books
   const searchedBooks = searchQuery.trim()
@@ -64,9 +76,9 @@ export default function CategoriesView({ showToast, onSelectBook }: CategoriesVi
       {/* Header section */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-gray-900 pb-5">
         <div className="flex items-center gap-3">
-          {selectedCategory && (
+          {currentCategory && (
             <button
-              onClick={() => setSelectedCategory(null)}
+              onClick={handleBack}
               className="p-2 rounded-lg bg-premium-light border border-gray-800 text-gray-400 hover:text-gold hover:border-gold/30 transition-all duration-200"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -74,10 +86,10 @@ export default function CategoriesView({ showToast, onSelectBook }: CategoriesVi
           )}
           <div>
             <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold">
-              {selectedCategory ? selectedCategory.category_name : "Operational Directory"}
+              {currentCategory ? currentCategory.category_name : "Operational Directory"}
             </span>
             <h2 className="text-xl font-black text-white tracking-tight">
-              {selectedCategory ? "Training Handbooks" : "Rule Book Categories"}
+              {currentCategory ? (subCategories.length > 0 ? "Sub Categories" : "Training Handbooks") : "Rule Book Categories"}
             </h2>
           </div>
         </div>
@@ -93,7 +105,7 @@ export default function CategoriesView({ showToast, onSelectBook }: CategoriesVi
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
-              if (selectedCategory) setSelectedCategory(null); // Clear category filter to search globally
+              if (currentCategory) setPath([]); // Clear category filter to search globally
             }}
             className="w-full sm:w-64 bg-[#161616] border border-gray-800 rounded-xl py-2 pl-10 pr-4 text-xs text-white placeholder-gray-500 font-sans tracking-wide transition-all duration-300 gold-glow-focus"
           />
@@ -147,7 +159,7 @@ export default function CategoriesView({ showToast, onSelectBook }: CategoriesVi
             )}
           </div>
         </div>
-      ) : selectedCategory ? (
+      ) : currentCategory && subCategories.length === 0 ? (
         /* Render Books inside Selected Category (Drill-down) */
         <div className="space-y-6">
           {/* Category description header */}
@@ -156,8 +168,8 @@ export default function CategoriesView({ showToast, onSelectBook }: CategoriesVi
               <FolderLock className="w-5 h-5" />
             </div>
             <div className="space-y-1">
-              <h4 className="text-sm font-bold text-white">{selectedCategory.category_name}</h4>
-              <p className="text-xs text-gray-400 leading-relaxed font-sans">{selectedCategory.description}</p>
+              <h4 className="text-sm font-bold text-white">{currentCategory.category_name}</h4>
+              <p className="text-xs text-gray-400 leading-relaxed font-sans">{currentCategory.description || "No description provided."}</p>
             </div>
           </div>
 
@@ -190,15 +202,18 @@ export default function CategoriesView({ showToast, onSelectBook }: CategoriesVi
           </div>
         </div>
       ) : (
-        /* Render Categories List */
+        /* Render Categories List (Top-level or Sub-categories) */
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {categories.map((cat) => {
+          {(currentCategory ? subCategories : topCategories).map((cat) => {
+            // Count books or sub-categories
             const catBookCount = books.filter((b) => b.rule_category === cat.category_name).length;
+            const catSubCount = categories.filter((c) => c.parent_category === cat.category_name).length;
+            
             return (
               <motion.div
                 key={cat.id}
                 whileHover={{ y: -3 }}
-                onClick={() => setSelectedCategory(cat)}
+                onClick={() => setPath((prev) => [...prev, cat])}
                 className="p-6 rounded-2xl border border-gold/10 bg-[#161616] hover:border-gold/30 cursor-pointer transition-all duration-300 flex items-start justify-between group shadow-lg"
               >
                 <div className="space-y-2 flex-1 pr-4">
@@ -214,7 +229,11 @@ export default function CategoriesView({ showToast, onSelectBook }: CategoriesVi
                     {cat.description || "No category description recorded."}
                   </p>
                   <div className="pt-2 flex items-center gap-1 text-[10px] font-mono text-gold font-bold uppercase tracking-wider">
-                    <span>{catBookCount} Training Handbooks</span>
+                    {catSubCount > 0 ? (
+                      <span>{catSubCount} Sub-Categories</span>
+                    ) : (
+                      <span>{catBookCount} Training Handbooks</span>
+                    )}
                     <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
@@ -222,10 +241,10 @@ export default function CategoriesView({ showToast, onSelectBook }: CategoriesVi
             );
           })}
 
-          {categories.length === 0 && (
+          {(currentCategory ? subCategories : topCategories).length === 0 && (
             <div className="col-span-full py-20 text-center border border-dashed border-gray-800 rounded-2xl">
               <FolderLock className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-              <p className="text-gray-400 text-sm font-mono">No active rule categories present in system database.</p>
+              <p className="text-gray-400 text-sm font-mono">No categories found.</p>
             </div>
           )}
         </div>
