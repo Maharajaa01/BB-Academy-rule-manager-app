@@ -1,15 +1,16 @@
 import { apiFetch } from "../api";
 import React, { useEffect, useState } from "react";
-import { Users, UserPlus, Trash2, Edit2, ShieldAlert, X, Check, Search, Save } from "lucide-react";
+import { UserPlus, Edit2, Trash2, ShieldAlert, Search, X, ArrowLeft, Users, Save } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Staff } from "../types";
 
 interface AdminStaffViewProps {
   showToast: (msg: string, type?: "success" | "error") => void;
   canDelete?: boolean;
+  setView: (view: string) => void;
 }
 
-export default function AdminStaffView({ showToast, canDelete = true }: AdminStaffViewProps) {
+export default function AdminStaffView({ showToast, canDelete = false, setView }: AdminStaffViewProps) {
   const [staffList, setStaffList] = useState<Staff[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -197,6 +198,13 @@ export default function AdminStaffView({ showToast, canDelete = true }: AdminSta
       {/* Header section */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-gray-900 pb-5">
         <div>
+          <button
+            onClick={() => setView("dashboard")}
+            className="flex items-center gap-1.5 text-gray-400 hover:text-gold mb-3 transition-colors text-xs font-mono tracking-wider cursor-pointer"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Dashboard</span>
+          </button>
           <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold">Administrator Console</span>
           <h2 className="text-xl font-black text-white tracking-tight">Staff Management Registry</h2>
         </div>
@@ -335,7 +343,7 @@ export default function AdminStaffView({ showToast, canDelete = true }: AdminSta
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="relative w-full max-w-lg rounded-2xl border border-gold/20 bg-[#141414] shadow-2xl overflow-hidden flex flex-col"
+              className="relative w-full max-w-lg max-h-[90vh] rounded-2xl border border-gold/20 bg-[#141414] shadow-2xl overflow-hidden flex flex-col"
             >
               {/* Header */}
               <div className="p-5 border-b border-gold/10 flex items-center justify-between bg-gradient-to-r from-[#1a1a1a] to-[#121212]">

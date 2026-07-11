@@ -290,7 +290,9 @@ export default function RuleBookDetailModal({ bookId, onClose, showToast }: Rule
                         {idx + 1}
                       </div>
                       <div className="flex-1 flex items-center">
-                        <p className="text-sm text-gray-200 leading-relaxed font-sans">{rule}</p>
+                        <p className="text-sm text-gray-200 leading-relaxed font-sans">
+                          {typeof rule === 'string' ? rule : (rule as any).rule}
+                        </p>
                       </div>
                     </div>
                   ))}

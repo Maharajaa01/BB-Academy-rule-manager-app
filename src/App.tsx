@@ -310,15 +310,15 @@ export default function App() {
             )}
 
             {view === "admin-staff" && (
-              <AdminStaffView showToast={showToast} canDelete={canDelete} />
+              <AdminStaffView showToast={showToast} canDelete={canDelete} setView={setView} />
             )}
 
             {view === "admin-categories" && (
-              <AdminCategoriesView showToast={showToast} canDelete={canDelete} />
+              <AdminCategoriesView showToast={showToast} canDelete={canDelete} setView={setView} />
             )}
 
             {view === "admin-books" && (
-              <AdminBooksView showToast={showToast} canDelete={canDelete} />
+              <AdminBooksView showToast={showToast} canDelete={canDelete} setView={setView} />
             )}
           </motion.div>
         </AnimatePresence>

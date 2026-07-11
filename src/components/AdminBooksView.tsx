@@ -1,15 +1,16 @@
 import { apiFetch } from "../api";
 import React, { useEffect, useState } from "react";
-import { BookOpen, BookPlus, Trash2, Edit2, ShieldAlert, X, Save, Search, Plus, ListOrdered } from "lucide-react";
+import { BookOpen, BookPlus, Trash2, Edit2, ShieldAlert, X, Save, Search, Plus, ListOrdered, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { RuleBook, RuleCategory } from "../types";
 
 interface AdminBooksViewProps {
   showToast: (msg: string, type?: "success" | "error") => void;
   canDelete?: boolean;
+  setView: (view: string) => void;
 }
 
-export default function AdminBooksView({ showToast, canDelete = true }: AdminBooksViewProps) {
+export default function AdminBooksView({ showToast, canDelete = false, setView }: AdminBooksViewProps) {
   const [books, setBooks] = useState<RuleBook[]>([]);
   const [categories, setCategories] = useState<RuleCategory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -219,10 +220,17 @@ export default function AdminBooksView({ showToast, canDelete = true }: AdminBoo
               onClick={handleBack}
               className="p-2 rounded-lg bg-premium-light border border-gray-800 text-gray-400 hover:text-gold hover:border-gold/30 transition-all duration-200"
             >
-              <X className="w-4 h-4" />
+              <ArrowLeft className="w-4 h-4" />
             </button>
           )}
           <div>
+            <button
+              onClick={() => setView("dashboard")}
+              className="flex items-center gap-1.5 text-gray-400 hover:text-gold mb-3 transition-colors text-xs font-mono tracking-wider cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Dashboard</span>
+            </button>
             <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold">Administrator Console</span>
             <h2 className="text-xl font-black text-white tracking-tight">
               {currentCategory ? (subCategories.length > 0 ? "Sub Categories" : "Rule Books") : "Rules Book Catalogue Editor"}

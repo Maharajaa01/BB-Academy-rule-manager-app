@@ -1,15 +1,16 @@
 import { apiFetch } from "../api";
 import React, { useEffect, useState } from "react";
-import { FolderLock, FolderPlus, Trash2, Edit2, ShieldAlert, X, Save, Search } from "lucide-react";
+import { FolderLock, FolderPlus, Trash2, Edit2, ShieldAlert, X, Save, Search, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { RuleCategory } from "../types";
 
 interface AdminCategoriesViewProps {
   showToast: (msg: string, type?: "success" | "error") => void;
   canDelete?: boolean;
+  setView: (view: string) => void;
 }
 
-export default function AdminCategoriesView({ showToast, canDelete = true }: AdminCategoriesViewProps) {
+export default function AdminCategoriesView({ showToast, canDelete = false, setView }: AdminCategoriesViewProps) {
   const [categories, setCategories] = useState<RuleCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -144,6 +145,13 @@ export default function AdminCategoriesView({ showToast, canDelete = true }: Adm
       {/* Header section */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-gray-900 pb-5">
         <div>
+          <button
+            onClick={() => setView("dashboard")}
+            className="flex items-center gap-1.5 text-gray-400 hover:text-gold mb-3 transition-colors text-xs font-mono tracking-wider cursor-pointer"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Dashboard</span>
+          </button>
           <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold">Administrator Console</span>
           <h2 className="text-xl font-black text-white tracking-tight">Category Organization Registry</h2>
         </div>
@@ -250,7 +258,7 @@ export default function AdminCategoriesView({ showToast, canDelete = true }: Adm
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="relative w-full max-w-md rounded-2xl border border-gold/20 bg-[#141414] shadow-2xl overflow-hidden flex flex-col"
+              className="relative w-full max-w-md max-h-[90vh] rounded-2xl border border-gold/20 bg-[#141414] shadow-2xl overflow-hidden flex flex-col"
             >
               {/* Header */}
               <div className="p-5 border-b border-gold/10 flex items-center justify-between bg-gradient-to-r from-[#1a1a1a] to-[#121212]">
@@ -269,7 +277,7 @@ export default function AdminCategoriesView({ showToast, canDelete = true }: Adm
               </div>
 
               {/* Form Content */}
-              <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
                 {/* Category Name */}
                 <div className="space-y-1">
                   <label className="text-[10px] font-mono uppercase tracking-wider text-gold font-bold">
