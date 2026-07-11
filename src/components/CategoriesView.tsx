@@ -7,9 +7,12 @@ import { RuleCategory, RuleBook } from "../types";
 interface CategoriesViewProps {
   showToast: (msg: string, type?: "success" | "error") => void;
   onSelectBook: (id: string) => void;
+  user: any;
+  setView: (view: any) => void;
 }
 
-export default function CategoriesView({ showToast, onSelectBook }: CategoriesViewProps) {
+export default function CategoriesView({ showToast, onSelectBook, user, setView }: CategoriesViewProps) {
+  const isAdmin = user?.role === "Administrator";
   const [categories, setCategories] = useState<RuleCategory[]>([]);
   const [books, setBooks] = useState<RuleBook[]>([]);
   const [loading, setLoading] = useState(true);
@@ -197,6 +200,14 @@ export default function CategoriesView({ showToast, onSelectBook }: CategoriesVi
               <div className="col-span-full py-16 text-center border border-dashed border-gray-800 rounded-2xl">
                 <BookOpen className="w-10 h-10 text-gray-600 mx-auto mb-3" />
                 <p className="text-gray-400 text-sm font-mono">No rule books listed in this category yet.</p>
+                {isAdmin && (
+                  <button
+                    onClick={() => setView("admin-books")}
+                    className="mt-4 px-4 py-2 bg-gold/10 hover:bg-gold text-gold hover:text-black rounded-lg text-xs font-bold transition-colors cursor-pointer inline-flex items-center gap-2 border border-gold/30"
+                  >
+                    + Create Rule Book
+                  </button>
+                )}
               </div>
             )}
           </div>

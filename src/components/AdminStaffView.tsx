@@ -354,7 +354,7 @@ export default function AdminStaffView({ showToast, canDelete = true }: AdminSta
               </div>
 
               {/* Form Content */}
-              <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
                 {/* Employee Name */}
                 <div className="space-y-1">
                   <label className="text-[10px] font-mono uppercase tracking-wider text-gold font-bold">

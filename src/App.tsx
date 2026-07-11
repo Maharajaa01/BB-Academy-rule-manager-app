@@ -296,6 +296,8 @@ export default function App() {
               <CategoriesView 
                 showToast={showToast} 
                 onSelectBook={setSelectedBookId} 
+                user={user}
+                setView={setView}
               />
             )}
 
