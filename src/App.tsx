@@ -66,7 +66,7 @@ export default function App() {
 
     // Listen for PWA installer prompt
     window.addEventListener("beforeinstallprompt", (e) => {
-      e.preventDefault();
+      // e.preventDefault() is deliberately removed so Chrome shows its automatic install banner
       setDeferredPrompt(e);
       setShowInstallBtn(true);
     });

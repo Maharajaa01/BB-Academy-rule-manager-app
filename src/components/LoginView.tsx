@@ -127,7 +127,7 @@ export default function LoginView({ onLoginSuccess, showToast }: LoginViewProps)
             ) : (
               <>
                 <LogIn className="w-4 h-4 text-black" />
-                <span className="tracking-wider uppercase text-xs font-black">Authorize & Enter</span>
+                <span className="tracking-wider uppercase text-xs font-black">Login</span>
               </>
             )}
           </button>
