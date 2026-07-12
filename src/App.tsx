@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { 
-  LayoutDashboard, 
-  Layers, 
-  User, 
-  ShieldAlert, 
-  Users, 
-  FolderLock, 
-  BookOpen, 
-  Download, 
-  LogOut, 
-  Sparkles,
-  Menu,
-  X,
-  ArrowLeft
+import {
+  LayoutDashboard,
+  Layers,
+  User,
+  ShieldAlert,
+  Users,
+  FolderLock,
+  BookOpen,
+  Download
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -33,7 +28,7 @@ export default function App() {
   const [user, setUser] = useState<any>(null);
   const [view, setView] = useState<ViewType>("dashboard");
   const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
-  
+
   // Admin sub-view state (staff | categories | books) when on "admin" tab
   const [adminSubTab, setAdminSubTab] = useState<"staff" | "categories" | "books">("staff");
 
@@ -43,6 +38,65 @@ export default function App() {
   // PWA Install Prompt State
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallBtn, setShowInstallBtn] = useState(false);
+
+  // Navigation with History API for mobile back button support
+  const navigateTo = (newView: ViewType) => {
+    // Push state to browser history
+    window.history.pushState({ view: newView, bookId: null }, "", `#${newView}`);
+    setView(newView);
+  };
+
+  const openBook = (bookId: string) => {
+    // Push state for book modal
+    window.history.pushState({ view, bookId }, "", `#book-${bookId}`);
+    setSelectedBookId(bookId);
+  };
+
+  const closeBook = () => {
+    setSelectedBookId(null);
+    // Go back in history if we pushed a book state
+    if (window.history.state?.bookId) {
+      window.history.back();
+    }
+  };
+
+  // Handle browser/mobile back button
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      const state = event.state;
+
+      // If we have a modal open, close it first
+      if (selectedBookId) {
+        setSelectedBookId(null);
+        return;
+      }
+
+      // Navigate to the view from history state, or dashboard as fallback
+      if (state?.view) {
+        setView(state.view);
+      } else {
+        // If no state (at initial page), stay on dashboard
+        // Prevent app from exiting by pushing a new state
+        if (view !== "dashboard") {
+          setView("dashboard");
+        } else {
+          // Already on dashboard, push state to prevent exit
+          window.history.pushState({ view: "dashboard", bookId: null }, "", "#dashboard");
+        }
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    // Initialize history state on mount
+    if (!window.history.state) {
+      window.history.replaceState({ view: "dashboard", bookId: null }, "", "#dashboard");
+    }
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [view, selectedBookId]);
 
   // Load session from local storage on mount
   useEffect(() => {
@@ -77,6 +131,7 @@ export default function App() {
     setUser(userData);
     localStorage.setItem("bb_session", JSON.stringify(userData));
     setView("dashboard");
+    window.history.replaceState({ view: "dashboard", bookId: null }, "", "#dashboard");
   };
 
   const handleLogout = () => {
@@ -84,6 +139,7 @@ export default function App() {
     localStorage.removeItem("bb_session");
     setView("dashboard");
     setSelectedBookId(null);
+    window.history.replaceState({ view: "dashboard", bookId: null }, "", "#dashboard");
   };
 
   // Toast dispatch helpers
@@ -138,7 +194,7 @@ export default function App() {
         <nav className="flex-1 space-y-1.5">
           {/* Dashboard */}
           <button
-            onClick={() => setView("dashboard")}
+            onClick={() => navigateTo("dashboard")}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 border-r-3 cursor-pointer ${
               view === "dashboard"
                 ? "bg-gold/10 text-gold border-gold"
@@ -151,7 +207,7 @@ export default function App() {
 
           {/* Categories Catalogue */}
           <button
-            onClick={() => setView("categories")}
+            onClick={() => navigateTo("categories")}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 border-r-3 cursor-pointer ${
               view === "categories"
                 ? "bg-gold/10 text-gold border-gold"
@@ -168,10 +224,10 @@ export default function App() {
               <span className="text-[9px] uppercase font-mono tracking-widest text-zinc-500 font-bold block px-4 mb-2">
                 System Admin
               </span>
-              
+
               {/* Manage Staff */}
               <button
-                onClick={() => setView("admin-staff")}
+                onClick={() => navigateTo("admin-staff")}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 border-r-3 cursor-pointer ${
                   view === "admin-staff"
                     ? "bg-gold/10 text-gold border-gold"
@@ -184,7 +240,7 @@ export default function App() {
 
               {/* Manage Categories */}
               <button
-                onClick={() => setView("admin-categories")}
+                onClick={() => navigateTo("admin-categories")}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 border-r-3 cursor-pointer ${
                   view === "admin-categories"
                     ? "bg-gold/10 text-gold border-gold"
@@ -197,7 +253,7 @@ export default function App() {
 
               {/* Manage Books */}
               <button
-                onClick={() => setView("admin-books")}
+                onClick={() => navigateTo("admin-books")}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 border-r-3 cursor-pointer ${
                   view === "admin-books"
                     ? "bg-gold/10 text-gold border-gold"
@@ -212,7 +268,7 @@ export default function App() {
 
           {/* Profile Details */}
           <button
-            onClick={() => setView("profile")}
+            onClick={() => navigateTo("profile")}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 border-r-3 cursor-pointer ${
               view === "profile"
                 ? "bg-gold/10 text-gold border-gold"
@@ -274,15 +330,6 @@ export default function App() {
 
       {/* --- MAIN PAGE CONTENT CONTAINER --- */}
       <main className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 max-w-7xl mx-auto w-full z-10 pb-28 md:pb-8">
-        {view !== "dashboard" && (
-          <button
-            onClick={() => setView("dashboard")}
-            className="flex items-center gap-2 px-4 py-2 mb-2 rounded-xl bg-gold text-black font-bold hover:brightness-110 transition-all shadow-[0_0_15px_rgba(255,215,0,0.3)] active:scale-95 w-fit"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm tracking-wider uppercase">Back</span>
-          </button>
-        )}
         <AnimatePresence mode="wait">
           <motion.div
             key={view + (view === "admin-staff" ? adminSubTab : "")} // animate switch on tab change
@@ -296,39 +343,39 @@ export default function App() {
             {view === "dashboard" && (
               <DashboardView
                 user={user}
-                setView={setView}
+                setView={navigateTo}
                 showToast={showToast}
-                onSelectBook={setSelectedBookId}
+                onSelectBook={openBook}
               />
             )}
 
             {view === "categories" && (
-              <CategoriesView 
-                showToast={showToast} 
-                onSelectBook={setSelectedBookId} 
+              <CategoriesView
+                showToast={showToast}
+                onSelectBook={openBook}
                 user={user}
-                setView={setView}
+                setView={navigateTo}
               />
             )}
 
             {view === "profile" && (
-              <ProfileView 
-                user={user} 
-                onLogout={handleLogout} 
-                showToast={showToast} 
+              <ProfileView
+                user={user}
+                onLogout={handleLogout}
+                showToast={showToast}
               />
             )}
 
             {view === "admin-staff" && (
-              <AdminStaffView showToast={showToast} canDelete={canDelete} setView={setView} />
+              <AdminStaffView showToast={showToast} canDelete={canDelete} setView={navigateTo} />
             )}
 
             {view === "admin-categories" && (
-              <AdminCategoriesView showToast={showToast} canDelete={canDelete} setView={setView} />
+              <AdminCategoriesView showToast={showToast} canDelete={canDelete} setView={navigateTo} />
             )}
 
             {view === "admin-books" && (
-              <AdminBooksView showToast={showToast} canDelete={canDelete} setView={setView} />
+              <AdminBooksView showToast={showToast} canDelete={canDelete} setView={navigateTo} />
             )}
           </motion.div>
         </AnimatePresence>
@@ -338,7 +385,7 @@ export default function App() {
       <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-[#141414]/90 border-t border-gold/10 backdrop-blur-md z-30 flex items-center justify-around px-4">
         {/* Nav Home (Dashboard) */}
         <button
-          onClick={() => setView("dashboard")}
+          onClick={() => navigateTo("dashboard")}
           className={`flex flex-col items-center justify-center gap-1 w-12 h-12 transition-all duration-300 ${
             view === "dashboard" ? "text-gold" : "text-gray-500 hover:text-gray-300"
           }`}
@@ -349,7 +396,7 @@ export default function App() {
 
         {/* Nav Categories */}
         <button
-          onClick={() => setView("categories")}
+          onClick={() => navigateTo("categories")}
           className={`flex flex-col items-center justify-center gap-1 w-12 h-12 transition-all duration-300 ${
             view === "categories" ? "text-gold" : "text-gray-500 hover:text-gray-300"
           }`}
@@ -363,7 +410,7 @@ export default function App() {
           <button
             onClick={() => {
               // Directs to admin staff by default, easily togglable
-              setView("admin-staff");
+              navigateTo("admin-staff");
             }}
             className={`flex flex-col items-center justify-center gap-1 w-12 h-12 transition-all duration-300 ${
               view === "admin-staff" || view === "admin-categories" || view === "admin-books"
@@ -378,7 +425,7 @@ export default function App() {
 
         {/* Nav Profile */}
         <button
-          onClick={() => setView("profile")}
+          onClick={() => navigateTo("profile")}
           className={`flex flex-col items-center justify-center gap-1 w-12 h-12 transition-all duration-300 ${
             view === "profile" ? "text-gold" : "text-gray-500 hover:text-gray-300"
           }`}
@@ -392,7 +439,7 @@ export default function App() {
       {hasAdminPanelAccess && (view === "admin-staff" || view === "admin-categories" || view === "admin-books") && (
         <div className="md:hidden fixed bottom-16 left-0 right-0 h-10 bg-[#0f0f0f] border-t border-gold/10 z-20 flex items-center justify-center gap-2 p-1 bg-opacity-95">
           <button
-            onClick={() => setView("admin-staff")}
+            onClick={() => navigateTo("admin-staff")}
             className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase transition-all duration-300 ${
               view === "admin-staff"
                 ? "bg-gold text-black font-extrabold"
@@ -402,7 +449,7 @@ export default function App() {
             Staff
           </button>
           <button
-            onClick={() => setView("admin-categories")}
+            onClick={() => navigateTo("admin-categories")}
             className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase transition-all duration-300 ${
               view === "admin-categories"
                 ? "bg-gold text-black font-extrabold"
@@ -412,7 +459,7 @@ export default function App() {
             Folders
           </button>
           <button
-            onClick={() => setView("admin-books")}
+            onClick={() => navigateTo("admin-books")}
             className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase transition-all duration-300 ${
               view === "admin-books"
                 ? "bg-gold text-black font-extrabold"
@@ -429,7 +476,13 @@ export default function App() {
         {selectedBookId && (
           <RuleBookDetailModal
             bookId={selectedBookId}
-            onClose={() => setSelectedBookId(null)}
+            onClose={() => {
+              setSelectedBookId(null);
+              // Go back in history to remove the book state
+              if (window.history.state?.bookId) {
+                window.history.back();
+              }
+            }}
             showToast={showToast}
           />
         )}

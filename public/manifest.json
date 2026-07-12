@@ -18,6 +18,10 @@
   "start_url": "/",
   "background_color": "#0f0f0f",
   "theme_color": "#0f0f0f",
-  "display": "standalone",
-  "orientation": "portrait"
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "portrait",
+  "scope": "/",
+  "id": "/",
+  "handle_links": "preferred"
 }

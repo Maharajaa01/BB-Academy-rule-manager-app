@@ -1,16 +1,14 @@
 import { apiFetch } from "../api";
 import React, { useEffect, useState } from "react";
-import { 
-  Users, 
-  FolderLock, 
-  BookOpen, 
-  ShieldCheck, 
-  ArrowRight, 
-  Clock, 
-  Sliders, 
-  GraduationCap,
-  CalendarDays,
-  Sparkles
+import {
+  Users,
+  FolderLock,
+  ArrowRight,
+  Clock,
+  Sparkles,
+  Bell,
+  Calendar,
+  FileText
 } from "lucide-react";
 import { motion } from "motion/react";
 import { StaffDashboardData, AdminDashboardData } from "../types";
@@ -27,7 +25,7 @@ export default function DashboardView({ user, setView, showToast, onSelectBook }
   const [staffStats, setStaffStats] = useState<StaffDashboardData | null>(null);
   const [adminStats, setAdminStats] = useState<AdminDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [recentBooks, setRecentBooks] = useState<any[]>([]);
+  const [todayBooks, setTodayBooks] = useState<any[]>([]);
 
   // Greeting helper
   const getGreeting = () => {
@@ -37,11 +35,34 @@ export default function DashboardView({ user, setView, showToast, onSelectBook }
     return "Good Evening";
   };
 
+  // Check if a date is today
+  const isToday = (dateString: string) => {
+    if (!dateString) return false;
+    const bookDate = new Date(dateString);
+    const today = new Date();
+    return (
+      bookDate.getFullYear() === today.getFullYear() &&
+      bookDate.getMonth() === today.getMonth() &&
+      bookDate.getDate() === today.getDate()
+    );
+  };
+
+  // Format time from date string
+  const formatTime = (dateString: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true
+    });
+  };
+
   useEffect(() => {
     const fetchStats = async () => {
       setLoading(true);
       try {
-        const statsUrl = isAdmin 
+        const statsUrl = isAdmin
           ? "/api/method/rule_management.rule_management.api.admin_dashboard"
           : "/api/method/rule_management.rule_management.api.get_staff_dashboard";
 
@@ -58,11 +79,15 @@ export default function DashboardView({ user, setView, showToast, onSelectBook }
           showToast(statsData.message || "Failed to load dashboard metrics.", "error");
         }
 
-        // Fetch rule books to display "Featured Rule Books"
+        // Fetch rule books and filter those created today
         const booksRes = await apiFetch("/api/method/rule_management.rule_management.api.get_rule_books");
         const booksData = await booksRes.json();
         if (booksData.status === "success") {
-          setRecentBooks(booksData.data.slice(0, 3)); // show first 3
+          // Filter books created today (using 'creation' field from Frappe)
+          const booksCreatedToday = booksData.data.filter((book: any) =>
+            isToday(book.creation)
+          );
+          setTodayBooks(booksCreatedToday);
         }
       } catch (err) {
         console.error(err);
@@ -126,7 +151,7 @@ export default function DashboardView({ user, setView, showToast, onSelectBook }
       ) : (
         <>
           {/* Key Metrics Widgets Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {isAdmin ? (
               <>
                 {/* Metric: Total Staff */}
@@ -164,112 +189,128 @@ export default function DashboardView({ user, setView, showToast, onSelectBook }
                     <FolderLock className="w-5 h-5" />
                   </div>
                 </motion.div>
-
-                {/* Metric: Total Books & Rules */}
-                <motion.div
-                  onClick={() => setView("admin-books")}
-                  className="p-5 rounded-2xl cursor-pointer flex items-center justify-between group glass stat-card"
-                >
-                  <div className="space-y-1">
-                    <span className="text-xs uppercase tracking-widest text-zinc-500 font-semibold font-display">Rule Books & Clauses</span>
-                    <h3 className="text-4xl font-display font-black text-white">
-                      {adminStats?.total_books} <span className="text-sm font-normal text-zinc-500">({adminStats?.total_rules} rules)</span>
-                    </h3>
-                    <p className="text-[10px] text-gold flex items-center gap-1 font-sans font-semibold">
-                      <span>Edit rule documents</span>
-                      <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 rounded-xl bg-gold/5 border border-gold/15 flex items-center justify-center text-gold shadow-inner group-hover:bg-gold/10 group-hover:border-gold/30 transition-all duration-300">
-                    <BookOpen className="w-5 h-5" />
-                  </div>
-                </motion.div>
               </>
             ) : (
               <>
                 {/* Staff: Assigned Categories */}
-                <div className="p-5 rounded-2xl flex items-center justify-between glass stat-card border-l-4 border-l-gold">
+                <div className="p-5 rounded-2xl flex items-center justify-between glass stat-card border-l-4 border-l-gold sm:col-span-2">
                   <div className="space-y-1">
                     <span className="text-xs uppercase tracking-widest text-zinc-500 font-semibold font-display">Your Categories</span>
                     <h3 className="text-4xl font-display font-black text-white">{staffStats?.total_assigned_categories}</h3>
-                    <p className="text-[10px] text-zinc-500 font-sans">Active operational branches</p>
+                    <p className="text-[10px] text-zinc-500 font-sans">Active operational branches assigned to you</p>
                   </div>
                   <div className="w-12 h-12 rounded-xl bg-gold/5 border border-gold/15 flex items-center justify-center text-gold shadow-inner">
                     <FolderLock className="w-5 h-5" />
-                  </div>
-                </div>
-
-                {/* Staff: Total Rule Books */}
-                <div className="p-5 rounded-2xl flex items-center justify-between glass stat-card">
-                  <div className="space-y-1">
-                    <span className="text-xs uppercase tracking-widest text-zinc-500 font-semibold font-display">Rule Books</span>
-                    <h3 className="text-4xl font-display font-black text-white">{staffStats?.total_rule_books}</h3>
-                    <p className="text-[10px] text-zinc-500 font-sans">Standard training volumes</p>
-                  </div>
-                  <div className="w-12 h-12 rounded-xl bg-gold/5 border border-gold/15 flex items-center justify-center text-gold shadow-inner">
-                    <BookOpen className="w-5 h-5" />
-                  </div>
-                </div>
-
-                {/* Staff: Active Rules */}
-                <div className="p-5 rounded-2xl flex items-center justify-between glass stat-card">
-                  <div className="space-y-1">
-                    <span className="text-xs uppercase tracking-widest text-zinc-500 font-semibold font-display">Rules Count</span>
-                    <h3 className="text-4xl font-display font-black text-white">{staffStats?.total_rules}</h3>
-                    <p className="text-[10px] text-zinc-500 font-sans">Individual compliance checks</p>
-                  </div>
-                  <div className="w-12 h-12 rounded-xl bg-gold/5 border border-gold/15 flex items-center justify-center text-gold shadow-inner">
-                    <ShieldCheck className="w-5 h-5" />
                   </div>
                 </div>
               </>
             )}
           </div>
 
-          {/* Quick Shortcuts & featured rules */}
-          <div className="grid grid-cols-1 gap-6 pt-2">
-            {/* Left Block: Interactive Navigation Guide */}
-            <div className="space-y-4">
+          {/* Recent Updates Section */}
+          <div className="space-y-4 pt-2">
+            {/* Section Header */}
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-gold" />
+                <div className="relative">
+                  <Bell className="w-4 h-4 text-gold" />
+                  {todayBooks.length > 0 && (
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                  )}
+                </div>
                 <h4 className="text-xs uppercase tracking-widest text-gold font-bold font-sans">
-                  Compliance Books Catalogue
+                  Recent Updates
                 </h4>
+                {todayBooks.length > 0 && (
+                  <span className="text-[9px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-mono font-semibold border border-green-500/30">
+                    {todayBooks.length} New Today
+                  </span>
+                )}
               </div>
+              <div className="flex items-center gap-1.5 text-[10px] text-gray-500 font-mono">
+                <Calendar className="w-3 h-3" />
+                <span>{new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+              </div>
+            </div>
 
+            {/* Today's Books Grid */}
+            {todayBooks.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {recentBooks.map((book) => (
-                  <div
+                {todayBooks.map((book, index) => (
+                  <motion.div
                     key={book.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
                     onClick={() => onSelectBook(book.id || book.book_title)}
-                    className="p-5 rounded-xl transition-all duration-300 cursor-pointer group flex flex-col justify-between glass glass-card-hover"
+                    className="relative p-5 rounded-2xl transition-all duration-300 cursor-pointer group overflow-hidden glass glass-card-hover border border-green-500/20 hover:border-green-500/40"
                   >
-                    <div className="space-y-2">
-                      <span className="text-[9px] uppercase tracking-wider bg-gold/10 text-gold px-2 py-0.5 rounded font-mono border border-gold/15">
+                    {/* New badge */}
+                    <div className="absolute top-3 right-3">
+                      <span className="text-[8px] uppercase tracking-wider bg-green-500/20 text-green-400 px-2 py-1 rounded-full font-mono font-bold border border-green-500/30 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+                        New
+                      </span>
+                    </div>
+
+                    <div className="space-y-3">
+                      {/* Category tag */}
+                      <span className="text-[9px] uppercase tracking-wider bg-gold/10 text-gold px-2 py-0.5 rounded font-mono border border-gold/15 inline-block">
                         {book.rule_category}
                       </span>
-                      <h5 className="font-display font-bold text-zinc-200 group-hover:text-gold transition-colors text-sm line-clamp-2">
+
+                      {/* Book title */}
+                      <h5 className="font-display font-bold text-zinc-200 group-hover:text-gold transition-colors text-sm line-clamp-2 pr-12">
                         {book.book_title}
                       </h5>
+
+                      {/* Meta info */}
+                      <div className="flex items-center justify-between pt-3 border-t border-zinc-800/60">
+                        <div className="flex items-center gap-3 text-[10px] font-mono text-zinc-500">
+                          <span className="flex items-center gap-1">
+                            <FileText className="w-3 h-3" />
+                            {book.rules?.length || 0} Rules
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {formatTime(book.creation)}
+                          </span>
+                        </div>
+                        <span className="text-gold flex items-center gap-1 text-[10px] font-mono group-hover:translate-x-1 transition-transform">
+                          View <ArrowRight className="w-3 h-3" />
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between pt-4 border-t border-zinc-800/60 mt-3 text-[10px] font-mono text-zinc-550">
-                      <span>{book.rules?.length || 0} Rule clauses</span>
-                      <span className="text-gold flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                        Review <ArrowRight className="w-3 h-3" />
-                      </span>
-                    </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
-
-              <button
-                onClick={() => setView("categories")}
-                className="w-full py-3.5 border border-dashed border-gold/20 hover:border-gold/50 rounded-xl flex items-center justify-center gap-2 text-gold text-xs font-mono uppercase tracking-widest transition-colors cursor-pointer bg-gold/5 hover:bg-gold/10"
+            ) : (
+              /* Empty State - No books created today */
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="py-12 rounded-2xl border border-dashed border-gray-800 bg-gradient-to-br from-gray-900/50 to-gray-950/50 text-center"
               >
-                <span>View Full Categories Listing</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
+                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-800/50 flex items-center justify-center">
+                  <Bell className="w-8 h-8 text-gray-600" />
+                </div>
+                <h5 className="text-sm font-display font-bold text-gray-400 mb-1">No Updates Today</h5>
+                <p className="text-xs text-gray-600 font-mono max-w-xs mx-auto">
+                  New rule books created today will appear here automatically.
+                </p>
+              </motion.div>
+            )}
+
+            {/* View All Categories Button */}
+            <motion.button
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+              onClick={() => setView("categories")}
+              className="w-full py-3.5 border border-dashed border-gold/20 hover:border-gold/50 rounded-xl flex items-center justify-center gap-2 text-gold text-xs font-mono uppercase tracking-widest transition-all cursor-pointer bg-gold/5 hover:bg-gold/10"
+            >
+              <span>Browse All Categories</span>
+              <ArrowRight className="w-4 h-4" />
+            </motion.button>
           </div>
         </>
       )}

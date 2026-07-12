@@ -16,7 +16,7 @@ async function startServer() {
   // --- PROXY TO FRAPPE BACKEND ---
   app.all('/api/*', async (req, res) => {
     try {
-      const frappeUrl = process.env.VITE_FRAPPE_URL || "http://127.0.0.1:8000";
+      const frappeUrl = process.env.VITE_FRAPPE_URL || "https://admin.dreamtechsolution.com";
       const url = `${frappeUrl}${req.originalUrl}`;
       
       const headers = new Headers();
@@ -26,7 +26,7 @@ async function startServer() {
         }
       }
       
-      const token = process.env.VITE_FRAPPE_TOKEN || 'token 5f88b922f020e04:53aadae6d700df9';
+      const token = process.env.VITE_FRAPPE_TOKEN || 'token f069923bef04378:a34779c3b22868f';
       headers.set('Authorization', token);
       headers.set('Content-Type', 'application/json');
 

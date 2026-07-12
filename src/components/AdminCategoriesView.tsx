@@ -21,7 +21,6 @@ export default function AdminCategoriesView({ showToast, canDelete = false, setV
 
   // Fields
   const [categoryName, setCategoryName] = useState("");
-  const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const fetchCategories = async () => {
@@ -49,14 +48,12 @@ export default function AdminCategoriesView({ showToast, canDelete = false, setV
   const openCreateForm = () => {
     setEditingCategory(null);
     setCategoryName("");
-    setDescription("");
     setIsFormOpen(true);
   };
 
   const openEditForm = (cat: RuleCategory) => {
     setEditingCategory(cat);
     setCategoryName(cat.category_name);
-    setDescription(cat.description || "");
     setIsFormOpen(true);
   };
 
@@ -102,11 +99,9 @@ export default function AdminCategoriesView({ showToast, canDelete = false, setV
         ? {
             category_id: editingCategory.id,
             category_name: categoryName,
-            description: description,
           }
         : {
             category_name: categoryName,
-            description: description,
           };
 
       const res = await apiFetch(endpoint, {
@@ -135,9 +130,7 @@ export default function AdminCategoriesView({ showToast, canDelete = false, setV
   };
 
   const filteredCategories = categories.filter(
-    (c) =>
-      c.category_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (c.description && c.description.toLowerCase().includes(searchQuery.toLowerCase()))
+    (c) => c.category_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -211,9 +204,6 @@ export default function AdminCategoriesView({ showToast, canDelete = false, setV
                   </div>
                   <h4 className="font-bold text-sm text-gray-200">{cat.category_name}</h4>
                 </div>
-                <p className="text-xs text-gray-400 font-sans leading-relaxed">
-                  {cat.description || "No description recorded."}
-                </p>
                 <div className="text-[10px] font-mono text-gray-500">
                   SYSTEM ID: {cat.id}
                 </div>
@@ -290,20 +280,6 @@ export default function AdminCategoriesView({ showToast, canDelete = false, setV
                     onChange={(e) => setCategoryName(e.target.value)}
                     placeholder="Enter category (e.g. Safety & Security)"
                     className="w-full bg-[#1b1b1b] border border-gray-800 rounded-xl p-3 text-xs text-white placeholder-gray-500 gold-glow-focus transition-all duration-300"
-                  />
-                </div>
-
-                {/* Description */}
-                <div className="space-y-1">
-                  <label className="text-[10px] font-mono uppercase tracking-wider text-gold font-bold">
-                    Brief Scope / Description
-                  </label>
-                  <textarea
-                    rows={4}
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Describe what rule books or procedures go inside this category..."
-                    className="w-full bg-[#1b1b1b] border border-gray-800 rounded-xl p-3 text-xs text-white placeholder-gray-500 gold-glow-focus transition-all duration-300 resize-none"
                   />
                 </div>
 
