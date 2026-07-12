@@ -11,7 +11,8 @@ import {
   LogOut, 
   Sparkles,
   Menu,
-  X
+  X,
+  ArrowLeft
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -273,6 +274,15 @@ export default function App() {
 
       {/* --- MAIN PAGE CONTENT CONTAINER --- */}
       <main className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 max-w-7xl mx-auto w-full z-10 pb-28 md:pb-8">
+        {view !== "dashboard" && (
+          <button
+            onClick={() => setView("dashboard")}
+            className="flex items-center gap-2 px-4 py-2 mb-2 rounded-xl bg-gold text-black font-bold hover:brightness-110 transition-all shadow-[0_0_15px_rgba(255,215,0,0.3)] active:scale-95 w-fit"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm tracking-wider uppercase">Back</span>
+          </button>
+        )}
         <AnimatePresence mode="wait">
           <motion.div
             key={view + (view === "admin-staff" ? adminSubTab : "")} // animate switch on tab change

@@ -1,6 +1,44 @@
 import { apiFetch } from "../api";
 import React, { useEffect, useState } from "react";
-import { FolderLock, BookOpen, ChevronRight, Search, Play, HelpCircle, ArrowLeft } from "lucide-react";
+import { 
+  FolderLock, BookOpen, ChevronRight, Search, Play, HelpCircle, ArrowLeft,
+  Briefcase, Shield, Users, CalendarClock, Sunrise, UserPlus, 
+  GraduationCap, Smartphone, Sigma, User, LayoutGrid
+} from "lucide-react";
+
+const getCategoryDesign = (name: string) => {
+  const n = name.toLowerCase();
+  
+  if (n.includes("maths")) {
+    return { icon: <Sigma className="w-5 h-5" />, bg: "bg-gradient-to-br from-indigo-900/40 to-indigo-950/40", border: "border-indigo-800/50", iconBg: "bg-indigo-900/50", iconColor: "text-indigo-400" };
+  }
+  if (n.includes("hr")) {
+    return { icon: <Users className="w-5 h-5" />, bg: "bg-gradient-to-br from-teal-900/40 to-teal-950/40", border: "border-teal-800/50", iconBg: "bg-teal-900/50", iconColor: "text-teal-400" };
+  }
+  if (n.includes("social media")) {
+    return { icon: <Smartphone className="w-5 h-5" />, bg: "bg-gradient-to-br from-pink-900/40 to-rose-950/40", border: "border-pink-800/50", iconBg: "bg-pink-900/50", iconColor: "text-pink-400" };
+  }
+  if (n.includes("student") || n.includes("parent")) {
+    return { icon: <GraduationCap className="w-5 h-5" />, bg: "bg-gradient-to-br from-emerald-900/30 to-emerald-950/30", border: "border-emerald-800/50", iconBg: "bg-emerald-900/50", iconColor: "text-emerald-400" };
+  }
+  if (n.includes("manager") || n.includes("admin") || n.includes("lead") || n.includes("posting")) {
+    return { icon: <Briefcase className="w-5 h-5" />, bg: "bg-gradient-to-br from-slate-800 to-slate-900", border: "border-slate-700", iconBg: "bg-slate-700/50", iconColor: "text-slate-300" };
+  }
+  if (n.includes("schedule") || n.includes("morning")) {
+    return { icon: <CalendarClock className="w-5 h-5" />, bg: "bg-gradient-to-br from-orange-900/30 to-orange-950/30", border: "border-orange-800/50", iconBg: "bg-orange-900/50", iconColor: "text-orange-400" };
+  }
+  if (n.includes("9th") || n.includes("girls") || n.includes("boys") || n.includes("teaching")) {
+    return { icon: <User className="w-5 h-5" />, bg: "bg-gradient-to-br from-blue-900/30 to-cyan-950/30", border: "border-blue-800/50", iconBg: "bg-blue-900/50", iconColor: "text-blue-400" };
+  }
+  
+  return {
+    icon: <LayoutGrid className="w-5 h-5" />,
+    bg: "bg-[#161616]",
+    border: "border-gray-800/50",
+    iconBg: "bg-gray-800/50",
+    iconColor: "text-gray-400"
+  };
+};
 import { motion } from "motion/react";
 import { RuleCategory, RuleBook } from "../types";
 
@@ -166,15 +204,20 @@ export default function CategoriesView({ showToast, onSelectBook, user, setView 
         /* Render Books inside Selected Category (Drill-down) */
         <div className="space-y-6">
           {/* Category description header */}
-          <div className="p-5 rounded-xl border border-gold/10 bg-[#121212] flex gap-4 items-start shadow-md">
-            <div className="w-10 h-10 rounded-lg bg-gold/10 border border-gold/30 flex items-center justify-center text-gold shrink-0">
-              <FolderLock className="w-5 h-5" />
-            </div>
-            <div className="space-y-1">
-              <h4 className="text-sm font-bold text-white">{currentCategory.category_name}</h4>
-              <p className="text-xs text-gray-400 leading-relaxed font-sans">{currentCategory.description || "No description provided."}</p>
-            </div>
-          </div>
+          {(() => {
+            const design = getCategoryDesign(currentCategory.category_name);
+            return (
+              <div className={`p-5 rounded-xl border ${design.border} ${design.bg} flex gap-4 items-start shadow-md`}>
+                <div className={`w-10 h-10 rounded-lg ${design.iconBg} border ${design.border} flex items-center justify-center ${design.iconColor} shrink-0`}>
+                  {design.icon}
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-sm font-bold text-white">{currentCategory.category_name}</h4>
+                  <p className="text-xs text-gray-400 leading-relaxed font-sans">{currentCategory.description || "No description provided."}</p>
+                </div>
+              </div>
+            );
+          })()}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredBooks.map((book) => (
@@ -219,20 +262,21 @@ export default function CategoriesView({ showToast, onSelectBook, user, setView 
             // Count books or sub-categories
             const catBookCount = books.filter((b) => b.rule_category === cat.category_name).length;
             const catSubCount = categories.filter((c) => c.parent_category === cat.category_name).length;
+            const design = getCategoryDesign(cat.category_name);
             
             return (
               <motion.div
                 key={cat.id}
-                whileHover={{ y: -3 }}
+                whileHover={{ y: -3, scale: 1.01 }}
                 onClick={() => setPath((prev) => [...prev, cat])}
-                className="p-6 rounded-2xl border border-gold/10 bg-[#161616] hover:border-gold/30 cursor-pointer transition-all duration-300 flex items-start justify-between group shadow-lg"
+                className={`p-6 rounded-2xl border ${design.border} ${design.bg} hover:brightness-110 cursor-pointer transition-all duration-300 flex items-start justify-between group shadow-lg`}
               >
                 <div className="space-y-2 flex-1 pr-4">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-gold/5 border border-gold/10 flex items-center justify-center text-gold group-hover:bg-gold/10 group-hover:border-gold/30 transition-all duration-300">
-                      <FolderLock className="w-4 h-4" />
+                    <div className={`w-8 h-8 rounded-lg ${design.iconBg} border ${design.border} flex items-center justify-center ${design.iconColor} group-hover:scale-110 transition-all duration-300`}>
+                      {design.icon}
                     </div>
-                    <h3 className="font-black text-sm text-gray-200 group-hover:text-gold transition-colors tracking-tight leading-tight">
+                    <h3 className="font-black text-sm text-gray-100 transition-colors tracking-tight leading-tight">
                       {cat.category_name}
                     </h3>
                   </div>

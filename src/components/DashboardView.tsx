@@ -227,9 +227,9 @@ export default function DashboardView({ user, setView, showToast, onSelectBook }
           </div>
 
           {/* Quick Shortcuts & featured rules */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-2">
+          <div className="grid grid-cols-1 gap-6 pt-2">
             {/* Left Block: Interactive Navigation Guide */}
-            <div className="lg:col-span-2 space-y-4">
+            <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <BookOpen className="w-4 h-4 text-gold" />
                 <h4 className="text-xs uppercase tracking-widest text-gold font-bold font-sans">
@@ -269,58 +269,6 @@ export default function DashboardView({ user, setView, showToast, onSelectBook }
                 <span>View Full Categories Listing</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
-            </div>
-
-            {/* Right Block: Dynamic Compliance Info Card */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-gold" />
-                <h4 className="text-xs uppercase tracking-widest text-gold font-bold font-sans">
-                  Operational Guidelines
-                </h4>
-              </div>
-
-              <div className="p-6 rounded-2xl space-y-4 relative overflow-hidden shadow-lg glass">
-                <div className="absolute right-0 bottom-0 translate-x-1/4 translate-y-1/4 text-gold/5 pointer-events-none">
-                  <ShieldCheck className="w-40 h-40" />
-                </div>
-                
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-gold/10 flex items-center justify-center text-gold border border-gold/20 shrink-0">
-                    <GraduationCap className="w-4 h-4" />
-                  </div>
-                  <div className="space-y-1">
-                    <h5 className="text-sm font-display font-bold text-white leading-tight">Training Mode Enabled</h5>
-                    <p className="text-xs text-zinc-400 leading-relaxed">
-                      All staff are required to listen to the audio briefs and view attached training videos at least once per shift cycle.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3 pt-4 border-t border-zinc-800">
-                  <div className="w-8 h-8 rounded-lg bg-gold/10 flex items-center justify-center text-gold border border-gold/20 shrink-0">
-                    <Sliders className="w-4 h-4" />
-                  </div>
-                  <div className="space-y-1">
-                    <h5 className="text-sm font-display font-bold text-white leading-tight">Discrepancy Escalation</h5>
-                    <p className="text-xs text-zinc-400 leading-relaxed">
-                      If you spot contradictions in Rule Books, contact your active on-duty supervisor or use the admin panel immediately.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3 pt-4 border-t border-zinc-800">
-                  <div className="w-8 h-8 rounded-lg bg-gold/10 flex items-center justify-center text-gold border border-gold/20 shrink-0">
-                    <CalendarDays className="w-4 h-4" />
-                  </div>
-                  <div className="space-y-1">
-                    <h5 className="text-sm font-display font-bold text-white leading-tight">Daily Log Reporting</h5>
-                    <p className="text-xs text-zinc-400 leading-relaxed">
-                      All audit reports are synced directly with Frappe core ERP databases every midnight automatically.
-                    </p>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </>
