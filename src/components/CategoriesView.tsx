@@ -286,7 +286,7 @@ const CATEGORY_DESIGNS: Record<string, CategoryDesign> = {
   // ==================== ACADEMIC ====================
 
   // 9th Std In Charge - Fresh Green Academic
-  "6th - 9th Std In Charge": {
+  "6th - 9th std in charge": {
     gradient: "from-green-500 via-emerald-500 to-teal-600",
     gradientHover: "from-green-400 via-emerald-400 to-teal-500",
     icon: <GraduationCap className="w-7 h-7" />,
