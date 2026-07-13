@@ -286,7 +286,7 @@ const CATEGORY_DESIGNS: Record<string, CategoryDesign> = {
   // ==================== ACADEMIC ====================
 
   // 9th Std In Charge - Fresh Green Academic
-  "9th std in charge": {
+  "6th - 9th Std In Charge": {
     gradient: "from-green-500 via-emerald-500 to-teal-600",
     gradientHover: "from-green-400 via-emerald-400 to-teal-500",
     icon: <GraduationCap className="w-7 h-7" />,
@@ -372,29 +372,29 @@ const CATEGORY_DESIGNS: Record<string, CategoryDesign> = {
     pattern: "radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.25) 0%, transparent 50%)"
   },
 
-  // Boys In Charge - Cool Blue & Cyan
+  // Boys In Charge - Cool Blue & Cyan (Boy Theme)
   "boys in charge": {
     gradient: "from-blue-500 via-sky-500 to-cyan-600",
     gradientHover: "from-blue-400 via-sky-400 to-cyan-500",
-    icon: <Rocket className="w-7 h-7" />,
+    icon: <CircleUserRound className="w-7 h-7" />,
     iconBg: "bg-white/20",
     iconColor: "text-white",
     borderColor: "border-sky-300/40",
     glowColor: "shadow-blue-500/40",
     accentColor: "text-sky-200",
-    badge: "🚀 Boys",
+    badge: "👦 Boys",
     decorativeElements: (
       <>
         <div className="absolute top-0 right-0 opacity-30">
           <div className="w-24 h-24 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-full blur-2xl" />
         </div>
         <div className="absolute top-2 right-2 opacity-25">
-          <Rocket className="w-10 h-10 text-sky-200" />
+          <UserCircle2 className="w-10 h-10 text-sky-200" />
         </div>
         <div className="absolute bottom-2 right-8 opacity-20">
           <Zap className="w-8 h-8 text-cyan-200" />
         </div>
-        <div className="absolute bottom-2 right-2 text-sky-200/50 text-xl">⚡</div>
+        <div className="absolute bottom-2 right-2 text-sky-200/50 text-xl">👦</div>
         <div className="absolute top-10 right-4 text-blue-200/40 text-lg">💪</div>
       </>
     ),
@@ -593,6 +593,126 @@ const CATEGORY_DESIGNS: Record<string, CategoryDesign> = {
       </>
     ),
     pattern: "radial-gradient(circle at 30% 70%, rgba(139, 92, 246, 0.25) 0%, transparent 50%)"
+  },
+
+  // ==================== MEETINGS & SYSTEMS ====================
+
+  // WRM Meeting - Professional Corporate Theme
+  "wrm meeting": {
+    gradient: "from-slate-700 via-slate-800 to-gray-900",
+    gradientHover: "from-slate-600 via-slate-700 to-gray-800",
+    icon: <Briefcase className="w-7 h-7" />,
+    iconBg: "bg-blue-500/20",
+    iconColor: "text-blue-400",
+    borderColor: "border-slate-500/50",
+    glowColor: "shadow-blue-500/30",
+    accentColor: "text-blue-300",
+    badge: "👔 WRM",
+    decorativeElements: (
+      <>
+        <div className="absolute top-0 right-0 opacity-20">
+          <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-slate-400 rounded-full blur-2xl" />
+        </div>
+        <div className="absolute top-2 right-2 opacity-25">
+          <Presentation className="w-10 h-10 text-blue-300" />
+        </div>
+        <div className="absolute bottom-2 right-8 opacity-20">
+          <Users className="w-8 h-8 text-slate-300" />
+        </div>
+        <div className="absolute bottom-2 right-2 text-blue-300/40 text-xl">📊</div>
+        <div className="absolute top-10 right-4 text-slate-300/30 text-lg">🤝</div>
+      </>
+    ),
+    pattern: "radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 50%)"
+  },
+
+  // KPI Meeting - Medal Trophy Theme
+  "kpi meeting": {
+    gradient: "from-amber-500 via-orange-500 to-red-500",
+    gradientHover: "from-amber-400 via-orange-400 to-red-400",
+    icon: <Trophy className="w-7 h-7" />,
+    iconBg: "bg-white/25",
+    iconColor: "text-white",
+    borderColor: "border-yellow-300/50",
+    glowColor: "shadow-orange-500/50",
+    accentColor: "text-yellow-100",
+    badge: "🏆 KPI",
+    decorativeElements: (
+      <>
+        <div className="absolute top-0 right-0 opacity-40">
+          <div className="w-28 h-28 bg-gradient-to-br from-yellow-300 to-amber-500 rounded-full blur-3xl" />
+        </div>
+        <div className="absolute top-2 right-2 opacity-30">
+          <Trophy className="w-12 h-12 text-yellow-200" />
+        </div>
+        <div className="absolute bottom-3 right-8 opacity-25">
+          <Award className="w-9 h-9 text-amber-200" />
+        </div>
+        <div className="absolute top-10 right-4 text-yellow-200/50 text-xl">🏅</div>
+        <div className="absolute bottom-2 right-2 text-orange-200/40 text-lg">⭐</div>
+      </>
+    ),
+    pattern: "radial-gradient(circle at 100% 0%, rgba(251, 191, 36, 0.35) 0%, transparent 60%)"
+  },
+
+  // VLP Meeting - Students Theme
+  "vlp meeting": {
+    gradient: "from-emerald-400 via-teal-500 to-cyan-600",
+    gradientHover: "from-emerald-300 via-teal-400 to-cyan-500",
+    icon: <GraduationCap className="w-7 h-7" />,
+    iconBg: "bg-white/25",
+    iconColor: "text-white",
+    borderColor: "border-emerald-300/50",
+    glowColor: "shadow-teal-500/50",
+    accentColor: "text-emerald-100",
+    badge: "👨‍🎓 VLP",
+    decorativeElements: (
+      <>
+        <div className="absolute top-0 right-0 opacity-35">
+          <div className="w-24 h-24 bg-gradient-to-br from-emerald-300 to-teal-400 rounded-full blur-2xl" />
+        </div>
+        <div className="absolute top-2 right-2 opacity-30">
+          <School className="w-10 h-10 text-emerald-200" />
+        </div>
+        <div className="absolute bottom-3 right-8 opacity-25">
+          <BookOpen className="w-8 h-8 text-teal-200" />
+        </div>
+        <div className="absolute top-10 right-4 opacity-25">
+          <Backpack className="w-7 h-7 text-cyan-200" />
+        </div>
+        <div className="absolute bottom-2 right-2 text-emerald-200/50 text-xl">🎓</div>
+      </>
+    ),
+    pattern: "radial-gradient(circle at 20% 20%, rgba(16, 185, 129, 0.25) 0%, transparent 50%)"
+  },
+
+  // New System - Techie Settings Theme
+  "new system": {
+    gradient: "from-gray-800 via-zinc-800 to-neutral-900",
+    gradientHover: "from-gray-700 via-zinc-700 to-neutral-800",
+    icon: <Settings className="w-7 h-7" />,
+    iconBg: "bg-cyan-500/20",
+    iconColor: "text-cyan-400",
+    borderColor: "border-cyan-500/40",
+    glowColor: "shadow-cyan-500/40",
+    accentColor: "text-cyan-400",
+    badge: "⚙️ System",
+    decorativeElements: (
+      <>
+        <div className="absolute top-0 right-0 opacity-20">
+          <div className="w-24 h-24 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full blur-2xl" />
+        </div>
+        <div className="absolute top-2 right-2 opacity-25">
+          <Settings className="w-10 h-10 text-cyan-300 animate-spin" style={{ animationDuration: '10s' }} />
+        </div>
+        <div className="absolute bottom-3 right-8 opacity-20">
+          <Laptop className="w-9 h-9 text-blue-300" />
+        </div>
+        <div className="absolute top-10 right-4 text-cyan-300/40 font-mono text-xl">{"</>"}</div>
+        <div className="absolute bottom-2 right-2 text-blue-300/30 text-lg">💻</div>
+      </>
+    ),
+    pattern: "radial-gradient(circle at 80% 80%, rgba(34, 211, 238, 0.15) 0%, transparent 50%)"
   }
 };
 
